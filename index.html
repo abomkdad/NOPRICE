@@ -116,6 +116,8 @@
         <button onclick="printOrder()">🖨️ طباعة الطلب</button>
     </div>
 
+    <div id="printArea" style="display: none;"></div>
+
     <script>
         let products = [
     {
@@ -1826,31 +1828,14 @@
             });
         }
 
-        function updateQuantity(index, quantity) {
-            quantity = parseInt(quantity);
-            if (quantity > 0) {
-                orderItems[index].quantity = quantity;
-            }
-            updateOrderTable();
-        }
-
-        function deleteOrderItem(index) {
-            orderItems.splice(index, 1);
-            updateOrderTable();
-        }
-
-        function sendOrder() {
-            let message = "قائمة الطلبات:\n";
-            orderItems.forEach(item => {
-                message += `- ${item.name}، العدد: ${item.quantity}\n`;
-            });
-            const encodedMessage = encodeURIComponent(message);
-            const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
-            window.open(whatsappUrl, '_blank');
-        }
-
         function printOrder() {
-            window.print();
+            const printArea = document.getElementById('orderTable').outerHTML;
+            const newWindow = window.open('', '', 'width=800, height=600');
+            newWindow.document.write('<html><head><title>طباعة الطلب</title></head><body>');
+            newWindow.document.write(printArea);
+            newWindow.document.write('</body></html>');
+            newWindow.document.close();
+            newWindow.print();
         }
 
         searchDropdown();
