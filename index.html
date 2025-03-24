@@ -26,6 +26,7 @@
 </head>
 <body>
     <h2>📦 نظام إدخال الطلبات</h2>
+    <div id="appContent">جاري تحميل النظام ...</div>
 
     <script>
         if ('serviceWorker' in navigator) {
@@ -35,6 +36,66 @@
             }).catch(function(error) {
                 console.error('Service Worker registration failed:', error);
             });
+        }
+
+        // إضافة نظام الطلبات الكامل
+        document.getElementById('appContent').innerHTML = `
+            <div>
+                <input type="text" id="searchInput" placeholder="🔍 البحث عن منتج...">
+                <button onclick="addProduct()">إضافة منتج جديد</button>
+                <br><br>
+                <table id="orderTable" border="1">
+                    <thead>
+                        <tr><th>المنتج</th><th>العدد</th><th>إزالة</th></tr>
+                    </thead>
+                    <tbody id="orderBody"></tbody>
+                </table>
+                <br>
+                <button onclick="sendOrder()">إرسال الطلب عبر واتساب</button>
+            </div>
+        `;
+
+        let orderItems = [];
+
+        function addProduct() {
+            const productName = prompt('أدخل اسم المنتج:');
+            if (productName) {
+                orderItems.push({ name: productName, quantity: 1 });
+                updateOrderTable();
+            }
+        }
+
+        function updateOrderTable() {
+            const orderBody = document.getElementById('orderBody');
+            orderBody.innerHTML = '';
+            orderItems.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.name}</td>
+                    <td><input type="number" value="${item.quantity}" onchange="updateQuantity(${index}, this.value)"></td>
+                    <td><button onclick="deleteProduct(${index})">حذف</button></td>
+                `;
+                orderBody.appendChild(row);
+            });
+        }
+
+        function updateQuantity(index, quantity) {
+            orderItems[index].quantity = parseInt(quantity);
+            updateOrderTable();
+        }
+
+        function deleteProduct(index) {
+            orderItems.splice(index, 1);
+            updateOrderTable();
+        }
+
+        function sendOrder() {
+            let message = 'قائمة الطلبات:\n';
+            orderItems.forEach(item => {
+                message += `- ${item.name}: ${item.quantity}\n`;
+            });
+            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
         }
     </script>
 </body>
